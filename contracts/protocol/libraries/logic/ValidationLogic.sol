@@ -67,12 +67,13 @@ library ValidationLogic {
     uint256 reservesCount,
     address oracle
   ) external view {
+    //判断金额
     require(amount != 0, Errors.VL_INVALID_AMOUNT);
     require(amount <= userBalance, Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE);
-
+    //判断激活状态
     (bool isActive, , , ) = reservesData[reserveAddress].configuration.getFlags();
     require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
-
+    //检查是否可以取出 因为这个资产可能作为抵押 健康因子不足的情况
     require(
       GenericLogic.balanceDecreaseAllowed(
         reserveAddress,

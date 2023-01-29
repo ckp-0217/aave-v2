@@ -62,12 +62,13 @@ library GenericLogic {
     uint256 reservesCount,
     address oracle
   ) external view returns (bool) {
+    //判断用户是否存在抵押 没有直接返回
     if (!userConfig.isBorrowingAny() || !userConfig.isUsingAsCollateral(reservesData[asset].id)) {
       return true;
     }
 
     balanceDecreaseAllowedLocalVars memory vars;
-
+    //获得这个清算阈值 和 精度
     (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[asset]
       .configuration
       .getParams();
@@ -75,12 +76,12 @@ library GenericLogic {
     if (vars.liquidationThreshold == 0) {
       return true;
     }
-
+    //计算用户的数据 资产负债等 
     (
-      vars.totalCollateralInETH,
-      vars.totalDebtInETH,
+      vars.totalCollateralInETH,//抵押余额
+      vars.totalDebtInETH,//负债总额
       ,
-      vars.avgLiquidationThreshold,
+      vars.avgLiquidationThreshold,//平均清算阈值
 
     ) = calculateUserAccountData(user, reservesData, userConfig, reserves, reservesCount, oracle);
 
@@ -170,6 +171,7 @@ library GenericLogic {
     if (userConfig.isEmpty()) {
       return (0, 0, 0, 0, uint256(-1));
     }
+    //遍历寻找用户资产负债
     for (vars.i = 0; vars.i < reservesCount; vars.i++) {
       if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
         continue;
@@ -177,14 +179,14 @@ library GenericLogic {
 
       vars.currentReserveAddress = reserves[vars.i];
       DataTypes.ReserveData storage currentReserve = reservesData[vars.currentReserveAddress];
-
+      //获取当前token的信息 清算阈值 价格 精度 等等
       (vars.ltv, vars.liquidationThreshold, , vars.decimals, ) = currentReserve
         .configuration
         .getParams();
 
       vars.tokenUnit = 10**vars.decimals;
       vars.reserveUnitPrice = IPriceOracleGetter(oracle).getAssetPrice(vars.currentReserveAddress);
-
+      //判断用户是否将他抵押
       if (vars.liquidationThreshold != 0 && userConfig.isUsingAsCollateral(vars.i)) {
         vars.compoundedLiquidityBalance = IERC20(currentReserve.aTokenAddress).balanceOf(user);
 

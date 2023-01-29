@@ -144,6 +144,7 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
     uint256 amount,
     address to
   ) external override whenNotPaused returns (uint256) {
+    //获取该token的配置 利率 利用率 对应aToken地址等等
     DataTypes.ReserveData storage reserve = _reserves[asset];
 
     address aToken = reserve.aTokenAddress;
@@ -151,11 +152,11 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
     uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
 
     uint256 amountToWithdraw = amount;
-
+    //判断全部取出
     if (amount == type(uint256).max) {
       amountToWithdraw = userBalance;
     }
-
+    
     ValidationLogic.validateWithdraw(
       asset,
       amountToWithdraw,
