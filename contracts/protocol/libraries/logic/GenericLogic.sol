@@ -179,7 +179,7 @@ library GenericLogic {
 
       vars.currentReserveAddress = reserves[vars.i];
       DataTypes.ReserveData storage currentReserve = reservesData[vars.currentReserveAddress];
-      //获取当前token的信息 清算阈值 价格 精度 等等
+      //获取当前token的信息 清算阈值 价格(对于ETH) 精度 等等
       (vars.ltv, vars.liquidationThreshold, , vars.decimals, ) = currentReserve
         .configuration
         .getParams();
