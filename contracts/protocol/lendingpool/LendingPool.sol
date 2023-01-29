@@ -117,7 +117,7 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
     reserve.updateInterestRates(asset, aToken, amount, 0);
     //将代币转移到aToken合约
     IERC20(asset).safeTransferFrom(msg.sender, aToken, amount);
-
+    //为用户铸造Atoken
     bool isFirstDeposit = IAToken(aToken).mint(onBehalfOf, amount, reserve.liquidityIndex);
     //之前atoken数量为0 启用用户准备金作为抵押品
     if (isFirstDeposit) {
@@ -127,7 +127,6 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
 
     emit Deposit(asset, msg.sender, onBehalfOf, amount, referralCode);
   }
-```
 
   /**
    * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned
