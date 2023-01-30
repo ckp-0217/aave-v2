@@ -211,6 +211,7 @@ contract AToken is
     override(IncentivizedERC20, IERC20)
     returns (uint256)
   {
+    //计算本金加上利息
     return super.balanceOf(user).rayMul(_pool.getReserveNormalizedIncome(_underlyingAsset));
   }
 

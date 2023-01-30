@@ -66,7 +66,7 @@ library ReserveLogic {
       //if the index was updated in the same block, no need to perform any calculation
       return reserve.liquidityIndex;
     }
-
+    //计算期间利息 如果前一个区块没有交易 就会存在线性利率累加
     uint256 cumulated =
       MathUtils.calculateLinearInterest(reserve.currentLiquidityRate, timestamp).rayMul(
         reserve.liquidityIndex
