@@ -127,6 +127,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
       uint256
     )
   {
+    //计算出前后的所有流动性
     uint256 availableLiquidity = IERC20(reserve).balanceOf(aToken);
     //avoid stack too deep
     availableLiquidity = availableLiquidity.add(liquidityAdded).sub(liquidityTaken);
@@ -184,19 +185,21 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     vars.totalDebt = totalStableDebt.add(totalVariableDebt);
     vars.currentVariableBorrowRate = 0;
     vars.currentStableBorrowRate = 0;
-    vars.currentLiquidityRate = 0;
-
+    vars.currentLiquidityRate = 0;  
+    //计算当前利用率
     vars.utilizationRate = vars.totalDebt == 0
       ? 0
       : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
 
     vars.currentStableBorrowRate = ILendingRateOracle(addressesProvider.getLendingRateOracle())
       .getMarketBorrowRate(reserve);
-
+    //计算稳定和浮动利率
+    //如果当前利用率大于期望利用率
     if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
+      //（利用率-期望利用率）/（1-期望利用率）
       uint256 excessUtilizationRateRatio =
         vars.utilizationRate.sub(OPTIMAL_UTILIZATION_RATE).rayDiv(EXCESS_UTILIZATION_RATE);
-
+      //基准利率（0）+RateSlope1+（利用率-期望利用率）/（1-期望利用率）*RateSlope2
       vars.currentStableBorrowRate = vars.currentStableBorrowRate.add(_stableRateSlope1).add(
         _stableRateSlope2.rayMul(excessUtilizationRateRatio)
       );
@@ -205,6 +208,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         _variableRateSlope2.rayMul(excessUtilizationRateRatio)
       );
     } else {
+      //资金利用率/期望最优利用率*RateSlope1
       vars.currentStableBorrowRate = vars.currentStableBorrowRate.add(
         _stableRateSlope1.rayMul(vars.utilizationRate.rayDiv(OPTIMAL_UTILIZATION_RATE))
       );
@@ -212,14 +216,14 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         vars.utilizationRate.rayMul(_variableRateSlope1).rayDiv(OPTIMAL_UTILIZATION_RATE)
       );
     }
-
+    //计算当前流动性利率 这里计算利息率
     vars.currentLiquidityRate = _getOverallBorrowRate(
       totalStableDebt,
       totalVariableDebt,
       vars
         .currentVariableBorrowRate,
       averageStableBorrowRate
-    )
+    )//乘上 利用率 这里有百分比乘法
       .rayMul(vars.utilizationRate)
       .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor));
 
@@ -248,12 +252,15 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
     if (totalDebt == 0) return 0;
 
-    uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
-
-    uint256 weightedStableRate = totalStableDebt.wadToRay().rayMul(currentAverageStableBorrowRate);
-
+    //稳定借贷利率*稳定借贷数量
+    uint256 weightedVariableRate = 
+        totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
+    //流动借贷利率*流动借贷数量
+    uint256 weightedStableRate = 
+        totalStableDebt.wadToRay().rayMul(currentAverageStableBorrowRate);
+    //相加除 稳定+流动借贷数量
     uint256 overallBorrowRate =
-      weightedVariableRate.add(weightedStableRate).rayDiv(totalDebt.wadToRay());
+        weightedVariableRate.add(weightedStableRate).rayDiv(totalDebt.wadToRay());  
 
     return overallBorrowRate;
   }

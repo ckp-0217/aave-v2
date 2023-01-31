@@ -6,24 +6,25 @@ library DataTypes {
   struct ReserveData {
     //stores the reserve configuration
     ReserveConfigurationMap configuration;
-    //the liquidity index. Expressed in ray
+    //流动性指数    
     uint128 liquidityIndex;
-    //variable borrow index. Expressed in ray
+    //浮动利率指数
     uint128 variableBorrowIndex;
-    //the current supply rate. Expressed in ray
+    //当前流动性利率
     uint128 currentLiquidityRate;
-    //the current variable borrow rate. Expressed in ray
+    //当前可变利率
     uint128 currentVariableBorrowRate;
-    //the current stable borrow rate. Expressed in ray
+    //当前稳定借贷利率
     uint128 currentStableBorrowRate;
+    //上一次更新时间
     uint40 lastUpdateTimestamp;
     //tokens addresses
     address aTokenAddress;
     address stableDebtTokenAddress;
     address variableDebtTokenAddress;
-    //address of the interest rate strategy
+    //利率策略存储地址
     address interestRateStrategyAddress;
-    //the id of the reserve. Represents the position in the list of the active reserves
+    //存储位置
     uint8 id;
   }
 

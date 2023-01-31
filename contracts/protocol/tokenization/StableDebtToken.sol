@@ -202,24 +202,23 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
     uint256 nextSupply = 0;
     uint256 userStableRate = _usersStableRate[user];
 
-    // Since the total supply and each single user debt accrue separately,
-    // there might be accumulation errors so that the last borrower repaying
-    // mght actually try to repay more than the available debt supply.
-    // In this case we simply set the total supply and the avg stable rate to 0
+ //因为分开计算 会有个精度问题（可以忽略）
     if (previousSupply <= amount) {
+    //如果用户的数量超过了池子贷款数量 直接清空了
+    //那么 平均利率和总借款 就都是0
       _avgStableRate = 0;
       _totalSupply = 0;
     } else {
+    //这里要计算一下用户的 利率*借款 是不是超过了 平均*总借款
+    //不然相减会直接异常
       nextSupply = _totalSupply = previousSupply.sub(amount);
       uint256 firstTerm = _avgStableRate.rayMul(previousSupply.wadToRay());
       uint256 secondTerm = userStableRate.rayMul(amount.wadToRay());
-
-      // For the same reason described above, when the last user is repaying it might
-      // happen that user rate * user balance > avg rate * total supply. In that case,
-      // we simply set the avg rate to 0
+    //同上
       if (secondTerm >= firstTerm) {
         newAvgStableRate = _avgStableRate = _totalSupply = 0;
       } else {
+        //平均利率=（当前平均利率*之前总借款数量-用户的还款数量*利率）/新的总供应
         newAvgStableRate = _avgStableRate = firstTerm.sub(secondTerm).rayDiv(nextSupply.wadToRay());
       }
     }

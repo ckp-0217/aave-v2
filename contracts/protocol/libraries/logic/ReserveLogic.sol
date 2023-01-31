@@ -215,7 +215,7 @@ library ReserveLogic {
     vars.totalVariableDebt = IVariableDebtToken(reserve.variableDebtTokenAddress)
       .scaledTotalSupply()
       .rayMul(reserve.variableBorrowIndex);
-
+    //通过利率策略地址计算3个利率
     (
       vars.newLiquidityRate,
       vars.newStableRate,
@@ -331,6 +331,7 @@ library ReserveLogic {
    * @param liquidityIndex The last stored liquidity index
    * @param variableBorrowIndex The last stored variable borrow index
    **/
+  //更新指数
   function _updateIndexes(
     DataTypes.ReserveData storage reserve,
     uint256 scaledVariableDebt,
@@ -338,8 +339,9 @@ library ReserveLogic {
     uint256 variableBorrowIndex,
     uint40 timestamp
   ) internal returns (uint256, uint256) {
+    //当前流动性利率
     uint256 currentLiquidityRate = reserve.currentLiquidityRate;
-
+    
     uint256 newLiquidityIndex = liquidityIndex;
     uint256 newVariableBorrowIndex = variableBorrowIndex;
 
