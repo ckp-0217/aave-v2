@@ -1,0 +1,11 @@
+[
+  "function getAmountsIn(uint256,address[]) view returns (uint256[])",
+  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
+  "function setAmountIn(uint256,address,address,uint256)",
+  "function setAmountOut(uint256,address,address,uint256)",
+  "function setAmountToReturn(address,uint256)",
+  "function setAmountToSwap(address,uint256)",
+  "function setDefaultMockValue(uint256)",
+  "function swapExactTokensForTokens(uint256,uint256,address[],address,uint256) returns (uint256[])",
+  "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256) returns (uint256[])"
+]

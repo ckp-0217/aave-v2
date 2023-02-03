@@ -54,11 +54,9 @@ library ReserveLogic {
    * @param reserve The reserve object
    * @return the normalized income. expressed in ray
    **/
-  function getNormalizedIncome(DataTypes.ReserveData storage reserve)
-    internal
-    view
-    returns (uint256)
-  {
+  function getNormalizedIncome(
+    DataTypes.ReserveData storage reserve
+  ) internal view returns (uint256) {
     uint40 timestamp = reserve.lastUpdateTimestamp;
 
     //solium-disable-next-line
@@ -67,10 +65,9 @@ library ReserveLogic {
       return reserve.liquidityIndex;
     }
     //计算期间利息 如果前一个区块没有交易 就会存在线性利率累加
-    uint256 cumulated =
-      MathUtils.calculateLinearInterest(reserve.currentLiquidityRate, timestamp).rayMul(
-        reserve.liquidityIndex
-      );
+    uint256 cumulated = MathUtils
+      .calculateLinearInterest(reserve.currentLiquidityRate, timestamp)
+      .rayMul(reserve.liquidityIndex);
 
     return cumulated;
   }
@@ -82,11 +79,9 @@ library ReserveLogic {
    * @param reserve The reserve object
    * @return The normalized variable debt. expressed in ray
    **/
-  function getNormalizedDebt(DataTypes.ReserveData storage reserve)
-    internal
-    view
-    returns (uint256)
-  {
+  function getNormalizedDebt(
+    DataTypes.ReserveData storage reserve
+  ) internal view returns (uint256) {
     uint40 timestamp = reserve.lastUpdateTimestamp;
 
     //solium-disable-next-line
@@ -95,10 +90,9 @@ library ReserveLogic {
       return reserve.variableBorrowIndex;
     }
 
-    uint256 cumulated =
-      MathUtils.calculateCompoundedInterest(reserve.currentVariableBorrowRate, timestamp).rayMul(
-        reserve.variableBorrowIndex
-      );
+    uint256 cumulated = MathUtils
+      .calculateCompoundedInterest(reserve.currentVariableBorrowRate, timestamp)
+      .rayMul(reserve.variableBorrowIndex);
 
     return cumulated;
   }
@@ -108,21 +102,24 @@ library ReserveLogic {
    * @param reserve the reserve object
    **/
   function updateState(DataTypes.ReserveData storage reserve) internal {
-    uint256 scaledVariableDebt =
-      IVariableDebtToken(reserve.variableDebtTokenAddress).scaledTotalSupply();
+    //计算当前总的浮动借贷底层资产
+    uint256 scaledVariableDebt = IVariableDebtToken(reserve.variableDebtTokenAddress)
+      .scaledTotalSupply();
+    // 当前的浮动借贷指数
     uint256 previousVariableBorrowIndex = reserve.variableBorrowIndex;
+    // 当前的流动性指数
     uint256 previousLiquidityIndex = reserve.liquidityIndex;
+    // 上一次计息时间
     uint40 lastUpdatedTimestamp = reserve.lastUpdateTimestamp;
-
-    (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) =
-      _updateIndexes(
-        reserve,
-        scaledVariableDebt,
-        previousLiquidityIndex,
-        previousVariableBorrowIndex,
-        lastUpdatedTimestamp
-      );
-
+    //更新指数 两个指数
+    (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) = _updateIndexes(
+      reserve,
+      scaledVariableDebt,
+      previousLiquidityIndex,
+      previousVariableBorrowIndex,
+      lastUpdatedTimestamp
+    );
+    //mint入库
     _mintToTreasury(
       reserve,
       scaledVariableDebt,
@@ -289,27 +286,32 @@ library ReserveLogic {
 
     //fetching the principal, total stable debt and the avg stable rate
     (
+      //本
       vars.principalStableDebt,
+      //本+息 --线性利率
       vars.currentStableDebt,
+      //平均稳定利率
       vars.avgStableRate,
+      //时间
       vars.stableSupplyUpdatedTimestamp
     ) = IStableDebtToken(reserve.stableDebtTokenAddress).getSupplyData();
-
-    //calculate the last principal variable debt
+    //计算之前的浮动累计
     vars.previousVariableDebt = scaledVariableDebt.rayMul(previousVariableBorrowIndex);
 
-    //calculate the new total supply after accumulation of the index
+    //计算之前的浮动累计+浮动利息
     vars.currentVariableDebt = scaledVariableDebt.rayMul(newVariableBorrowIndex);
 
-    //calculate the stable debt until the last timestamp update
+    //计算这个期间稳定借贷的利息
     vars.cumulatedStableInterest = MathUtils.calculateCompoundedInterest(
       vars.avgStableRate,
       vars.stableSupplyUpdatedTimestamp,
       timestamp
     );
-
+    //稳定债务*复利
     vars.previousStableDebt = vars.principalStableDebt.rayMul(vars.cumulatedStableInterest);
+    //应该收取的利息
 
+    //当前累计浮动-之前浮动+当前累计稳定（线性）- 之前累计（复利）
     //debt accrued is the sum of the current debt minus the sum of the debt at the last update
     vars.totalDebtAccrued = vars
       .currentVariableDebt
@@ -341,24 +343,30 @@ library ReserveLogic {
   ) internal returns (uint256, uint256) {
     //当前流动性利率
     uint256 currentLiquidityRate = reserve.currentLiquidityRate;
-    
+
     uint256 newLiquidityIndex = liquidityIndex;
     uint256 newVariableBorrowIndex = variableBorrowIndex;
 
-    //only cumulating if there is any income being produced
     if (currentLiquidityRate > 0) {
-      uint256 cumulatedLiquidityInterest =
-        MathUtils.calculateLinearInterest(currentLiquidityRate, timestamp);
+      //如果流动性利率等于0 利息为0也不需要计算
+      //先计算 1 + 流动性利率*时间
+      uint256 cumulatedLiquidityInterest = MathUtils.calculateLinearInterest(
+        currentLiquidityRate,
+        timestamp
+      );
+      //相乘
       newLiquidityIndex = cumulatedLiquidityInterest.rayMul(liquidityIndex);
       require(newLiquidityIndex <= type(uint128).max, Errors.RL_LIQUIDITY_INDEX_OVERFLOW);
-
+      //更新
       reserve.liquidityIndex = uint128(newLiquidityIndex);
 
-      //as the liquidity rate might come only from stable rate loans, we need to ensure
-      //that there is actual variable debt before accumulating
+      //计算当前浮动借贷指数
       if (scaledVariableDebt != 0) {
-        uint256 cumulatedVariableBorrowInterest =
-          MathUtils.calculateCompoundedInterest(reserve.currentVariableBorrowRate, timestamp);
+        //计算期间复利
+        uint256 cumulatedVariableBorrowInterest = MathUtils.calculateCompoundedInterest(
+          reserve.currentVariableBorrowRate,
+          timestamp
+        );
         newVariableBorrowIndex = cumulatedVariableBorrowInterest.rayMul(variableBorrowIndex);
         require(
           newVariableBorrowIndex <= type(uint128).max,

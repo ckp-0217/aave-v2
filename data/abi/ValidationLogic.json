@@ -1,0 +1,4 @@
+[
+  "function REBALANCE_UP_LIQUIDITY_RATE_THRESHOLD() view returns (uint256)",
+  "function REBALANCE_UP_USAGE_RATIO_THRESHOLD() view returns (uint256)"
+]

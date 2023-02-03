@@ -1,0 +1,11 @@
+[
+  "constructor(address,address)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "event deployedContracts(address,address)",
+  "function initDeployment(address[],string[])",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function setOracleBorrowRates(address[],uint256[],address)",
+  "function setOracleOwnership(address,address)",
+  "function transferOwnership(address)"
+]

@@ -1,0 +1,10 @@
+[
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "function getMarketBorrowRate(address) view returns (uint256)",
+  "function getMarketLiquidityRate(address) view returns (uint256)",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function setMarketBorrowRate(address,uint256)",
+  "function setMarketLiquidityRate(address,uint256)",
+  "function transferOwnership(address)"
+]

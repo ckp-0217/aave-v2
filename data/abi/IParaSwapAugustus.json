@@ -1,0 +1,3 @@
+[
+  "function getTokenTransferProxy() view returns (address)"
+]

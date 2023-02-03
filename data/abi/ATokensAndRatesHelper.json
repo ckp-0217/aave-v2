@@ -1,0 +1,10 @@
+[
+  "constructor(address,address,address)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "event deployedContracts(address,address)",
+  "function configureReserves(tuple(address,uint256,uint256,uint256,uint256,bool,bool)[])",
+  "function initDeployment(tuple(address,uint256[6])[])",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function transferOwnership(address)"
+]

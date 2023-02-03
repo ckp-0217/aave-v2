@@ -1,0 +1,21 @@
+[
+  "constructor(address,address,address)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "event Swapped(address,address,uint256,uint256)",
+  "function ADDRESSES_PROVIDER() view returns (address)",
+  "function FLASHLOAN_PREMIUM_TOTAL() view returns (uint256)",
+  "function LENDING_POOL() view returns (address)",
+  "function MAX_SLIPPAGE_PERCENT() view returns (uint256)",
+  "function ORACLE() view returns (address)",
+  "function UNISWAP_ROUTER() view returns (address)",
+  "function USD_ADDRESS() view returns (address)",
+  "function WETH_ADDRESS() view returns (address)",
+  "function executeOperation(address[],uint256[],uint256[],address,bytes) returns (bool)",
+  "function getAmountsIn(uint256,address,address) view returns (uint256, uint256, uint256, uint256, address[])",
+  "function getAmountsOut(uint256,address,address) view returns (uint256, uint256, uint256, uint256, address[])",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function rescueTokens(address)",
+  "function swapAndDeposit(address[],address[],uint256[],uint256[],tuple(uint256,uint256,uint8,bytes32,bytes32)[],bool[])",
+  "function transferOwnership(address)"
+]

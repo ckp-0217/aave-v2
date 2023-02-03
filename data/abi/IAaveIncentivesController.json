@@ -1,0 +1,20 @@
+[
+  "event ClaimerSet(address indexed,address indexed)",
+  "event RewardsAccrued(address indexed,uint256)",
+  "event RewardsClaimed(address indexed,address indexed,uint256)",
+  "event RewardsClaimed(address indexed,address indexed,address indexed,uint256)",
+  "function DISTRIBUTION_END() view returns (uint256)",
+  "function PRECISION() view returns (uint8)",
+  "function REWARD_TOKEN() view returns (address)",
+  "function assets(address) view returns (uint128, uint128, uint256)",
+  "function claimRewards(address[],uint256,address) returns (uint256)",
+  "function claimRewardsOnBehalf(address[],uint256,address,address) returns (uint256)",
+  "function configureAssets(address[],uint256[])",
+  "function getAssetData(address) view returns (uint256, uint256, uint256)",
+  "function getClaimer(address) view returns (address)",
+  "function getRewardsBalance(address[],address) view returns (uint256)",
+  "function getUserAssetData(address,address) view returns (uint256)",
+  "function getUserUnclaimedRewards(address) view returns (uint256)",
+  "function handleAction(address,uint256,uint256)",
+  "function setClaimer(address,address)"
+]

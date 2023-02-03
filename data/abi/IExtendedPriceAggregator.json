@@ -1,0 +1,8 @@
+[
+  "event AnswerUpdated(int256 indexed,uint256 indexed,uint256)",
+  "function getPlatformId() view returns (uint256)",
+  "function getSubTokens() view returns (address[])",
+  "function getToken() view returns (address)",
+  "function getTokenType() view returns (uint256)",
+  "function latestAnswer() view returns (int256)"
+]

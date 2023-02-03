@@ -1,0 +1,14 @@
+[
+  "constructor(address,uint256,uint256,uint256,uint256,uint256,uint256)",
+  "function EXCESS_UTILIZATION_RATE() view returns (uint256)",
+  "function OPTIMAL_UTILIZATION_RATE() view returns (uint256)",
+  "function addressesProvider() view returns (address)",
+  "function baseVariableBorrowRate() view returns (uint256)",
+  "function calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256) view returns (uint256, uint256, uint256)",
+  "function calculateInterestRates(address,uint256,uint256,uint256,uint256,uint256) view returns (uint256, uint256, uint256)",
+  "function getMaxVariableBorrowRate() view returns (uint256)",
+  "function stableRateSlope1() view returns (uint256)",
+  "function stableRateSlope2() view returns (uint256)",
+  "function variableRateSlope1() view returns (uint256)",
+  "function variableRateSlope2() view returns (uint256)"
+]

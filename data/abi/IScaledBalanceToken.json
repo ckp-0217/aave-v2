@@ -1,0 +1,5 @@
+[
+  "function getScaledUserBalanceAndSupply(address) view returns (uint256, uint256)",
+  "function scaledBalanceOf(address) view returns (uint256)",
+  "function scaledTotalSupply() view returns (uint256)"
+]

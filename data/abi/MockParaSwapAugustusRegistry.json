@@ -1,0 +1,4 @@
+[
+  "constructor(address)",
+  "function isValidAugustus(address) view returns (bool)"
+]

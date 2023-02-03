@@ -1,0 +1,5 @@
+[
+  "event Exchange(address indexed,address indexed,address indexed,uint256,uint256)",
+  "function approveExchange(address[])",
+  "function exchange(address,address,uint256,uint256) returns (uint256)"
+]

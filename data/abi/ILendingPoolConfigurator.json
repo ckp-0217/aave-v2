@@ -1,0 +1,18 @@
+[
+  "event ATokenUpgraded(address indexed,address indexed,address indexed)",
+  "event BorrowingDisabledOnReserve(address indexed)",
+  "event BorrowingEnabledOnReserve(address indexed,bool)",
+  "event CollateralConfigurationChanged(address indexed,uint256,uint256,uint256)",
+  "event ReserveActivated(address indexed)",
+  "event ReserveDeactivated(address indexed)",
+  "event ReserveDecimalsChanged(address indexed,uint256)",
+  "event ReserveFactorChanged(address indexed,uint256)",
+  "event ReserveFrozen(address indexed)",
+  "event ReserveInitialized(address indexed,address indexed,address,address,address)",
+  "event ReserveInterestRateStrategyChanged(address indexed,address)",
+  "event ReserveUnfrozen(address indexed)",
+  "event StableDebtTokenUpgraded(address indexed,address indexed,address indexed)",
+  "event StableRateDisabledOnReserve(address indexed)",
+  "event StableRateEnabledOnReserve(address indexed)",
+  "event VariableDebtTokenUpgraded(address indexed,address indexed,address indexed)"
+]

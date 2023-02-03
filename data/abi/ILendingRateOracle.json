@@ -1,0 +1,4 @@
+[
+  "function getMarketBorrowRate(address) view returns (uint256)",
+  "function setMarketBorrowRate(address,uint256)"
+]

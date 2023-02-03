@@ -1,0 +1,6 @@
+[
+  "event LiquidationCall(address indexed,address indexed,address indexed,uint256,uint256,address,bool)",
+  "event ReserveUsedAsCollateralDisabled(address indexed,address indexed)",
+  "event ReserveUsedAsCollateralEnabled(address indexed,address indexed)",
+  "function liquidationCall(address,address,address,uint256,bool) returns (uint256, string)"
+]

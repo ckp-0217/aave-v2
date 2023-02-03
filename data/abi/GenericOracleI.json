@@ -1,0 +1,7 @@
+[
+  "event AssetPriceUpdated(address,uint256,uint256)",
+  "event EthPriceUpdated(uint256,uint256)",
+  "event ProphecySubmitted(address indexed,address indexed,uint96,uint96)",
+  "function getAssetPrice(address) view returns (uint256)",
+  "function getEthUsdPrice() view returns (uint256)"
+]

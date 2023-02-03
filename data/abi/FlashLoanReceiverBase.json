@@ -1,0 +1,6 @@
+[
+  "constructor(address)",
+  "function ADDRESSES_PROVIDER() view returns (address)",
+  "function LENDING_POOL() view returns (address)",
+  "function executeOperation(address[],uint256[],uint256[],address,bytes) returns (bool)"
+]

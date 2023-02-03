@@ -1,0 +1,6 @@
+[
+  "constructor()",
+  "function expectSwap(address,address,uint256,uint256,uint256)",
+  "function getTokenTransferProxy() view returns (address)",
+  "function swap(address,address,uint256,uint256) returns (uint256)"
+]

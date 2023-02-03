@@ -1,0 +1,11 @@
+[
+  "event Swapped(address,address,uint256,uint256)",
+  "function FLASHLOAN_PREMIUM_TOTAL() returns (uint256)",
+  "function MAX_SLIPPAGE_PERCENT() returns (uint256)",
+  "function ORACLE() returns (address)",
+  "function UNISWAP_ROUTER() returns (address)",
+  "function USD_ADDRESS() returns (address)",
+  "function WETH_ADDRESS() returns (address)",
+  "function getAmountsIn(uint256,address,address) view returns (uint256, uint256, uint256, uint256, address[])",
+  "function getAmountsOut(uint256,address,address) view returns (uint256, uint256, uint256, uint256, address[])"
+]
