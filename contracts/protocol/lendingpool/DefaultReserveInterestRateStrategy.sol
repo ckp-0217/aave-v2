@@ -223,7 +223,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
       vars
         .currentVariableBorrowRate,
       averageStableBorrowRate
-    )//乘上 利用率 这里有百分比乘法
+    )//乘上利用率 流动性利率一些做为储备金
       .rayMul(vars.utilizationRate)
       .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor));
 
