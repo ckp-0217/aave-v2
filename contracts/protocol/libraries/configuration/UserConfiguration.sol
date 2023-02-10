@@ -14,10 +14,10 @@ library UserConfiguration {
     0x5555555555555555555555555555555555555555555555555555555555555555;
 
   /**
-   * @dev Sets if the user is borrowing the reserve identified by reserveIndex
-   * @param self The configuration object
-   * @param reserveIndex The index of the reserve in the bitmap
-   * @param borrowing True if the user is borrowing the reserve, false otherwise
+   * @dev设置用户是否借用由reserveIndex标识的预留
+   * @param self配置对象
+   * @param reserveIndex位图中的预留索引
+   * @param borrowing如果用户正在借用准备金，则为True，否则为false
    **/
   function setBorrowing(
     DataTypes.UserConfigurationMap storage self,
@@ -31,10 +31,10 @@ library UserConfiguration {
   }
 
   /**
-   * @dev Sets if the user is using as collateral the reserve identified by reserveIndex
-   * @param self The configuration object
-   * @param reserveIndex The index of the reserve in the bitmap
-   * @param usingAsCollateral True if the user is usin the reserve as collateral, false otherwise
+   * @dev设置用户是否使用reserveIndex标识的储备作为抵押品
+   * @param self配置对象
+   * @param reserveIndex位图中的预留索引
+   * @param usingAsCollateral如果用户使用准备金作为抵押品，则为True，否则为false
    **/
   function setUsingAsCollateral(
     DataTypes.UserConfigurationMap storage self,
@@ -48,10 +48,10 @@ library UserConfiguration {
   }
 
   /**
-   * @dev Used to validate if a user has been using the reserve for borrowing or as collateral
-   * @param self The configuration object
-   * @param reserveIndex The index of the reserve in the bitmap
-   * @return True if the user has been using a reserve for borrowing or as collateral, false otherwise
+   * @dev用于验证用户是否将准备金用于借款或作为抵押品
+   * @param self配置对象
+   * @param reserveIndex位图中的预留索引
+   * @return如果用户一直使用准备金借款或作为抵押品，则为True，否则为false
    **/
   function isUsingAsCollateralOrBorrowing(
     DataTypes.UserConfigurationMap memory self,
@@ -62,48 +62,46 @@ library UserConfiguration {
   }
 
   /**
-   * @dev Used to validate if a user has been using the reserve for borrowing
-   * @param self The configuration object
-   * @param reserveIndex The index of the reserve in the bitmap
-   * @return True if the user has been using a reserve for borrowing, false otherwise
+   * @dev用于验证用户是否使用了借阅预留
+   * @param self配置对象
+   * @param reserveIndex位图中的预留索引
+   * @return如果用户一直在使用准备金借款，则为True，否则为false
    **/
-  function isBorrowing(DataTypes.UserConfigurationMap memory self, uint256 reserveIndex)
-    internal
-    pure
-    returns (bool)
-  {
+  function isBorrowing(
+    DataTypes.UserConfigurationMap memory self,
+    uint256 reserveIndex
+  ) internal pure returns (bool) {
     require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
     return (self.data >> (reserveIndex * 2)) & 1 != 0;
   }
 
   /**
-   * @dev Used to validate if a user has been using the reserve as collateral
-   * @param self The configuration object
-   * @param reserveIndex The index of the reserve in the bitmap
-   * @return True if the user has been using a reserve as collateral, false otherwise
+   * @dev用于验证用户是否使用储备作为抵押品
+   * @param self配置对象
+   * @param reserveIndex位图中的预留索引
+   * @return如果用户一直使用准备金作为抵押品，则为True，否则为false
    **/
-  function isUsingAsCollateral(DataTypes.UserConfigurationMap memory self, uint256 reserveIndex)
-    internal
-    pure
-    returns (bool)
-  {
+  function isUsingAsCollateral(
+    DataTypes.UserConfigurationMap memory self,
+    uint256 reserveIndex
+  ) internal pure returns (bool) {
     require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
     return (self.data >> (reserveIndex * 2 + 1)) & 1 != 0;
   }
 
   /**
-   * @dev Used to validate if a user has been borrowing from any reserve
-   * @param self The configuration object
-   * @return True if the user has been borrowing any reserve, false otherwise
+   * @dev用于验证用户是否从任何准备金借款
+   * @param self配置对象
+   * @return如果用户已经借出任何准备金，则为True，否则为false
    **/
   function isBorrowingAny(DataTypes.UserConfigurationMap memory self) internal pure returns (bool) {
     return self.data & BORROWING_MASK != 0;
   }
 
   /**
-   * @dev Used to validate if a user has not been using any reserve
-   * @param self The configuration object
-   * @return True if the user has been borrowing any reserve, false otherwise
+   * @dev用于验证用户是否没有使用任何预留
+   * @param self配置对象
+   * @return如果用户已经借出任何准备金，则为True，否则为false
    **/
   function isEmpty(DataTypes.UserConfigurationMap memory self) internal pure returns (bool) {
     return self.data == 0;
