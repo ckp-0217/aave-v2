@@ -6,7 +6,7 @@ library DataTypes {
   struct ReserveData {
     //stores the reserve configuration
     ReserveConfigurationMap configuration;
-    //流动性指数    
+    //流动性指数
     uint128 liquidityIndex;
     //浮动利率指数
     uint128 variableBorrowIndex;
@@ -43,8 +43,14 @@ library DataTypes {
   }
 
   struct UserConfigurationMap {
+    //使用位图的方式，用两位来表示一个币种是否借入和抵押，01表示false/true
+    //UserConfiguration中有对应方法
     uint256 data;
   }
 
-  enum InterestRateMode {NONE, STABLE, VARIABLE}
+  enum InterestRateMode {
+    NONE,
+    STABLE,
+    VARIABLE
+  }
 }
