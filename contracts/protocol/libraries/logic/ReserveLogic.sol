@@ -312,13 +312,12 @@ library ReserveLogic {
     //应该收取的利息
 
     //当前累计浮动-之前浮动+当前累计稳定（线性）- 之前累计（复利）
-    //debt accrued is the sum of the current debt minus the sum of the debt at the last update
     vars.totalDebtAccrued = vars
       .currentVariableDebt
       .add(vars.currentStableDebt)
       .sub(vars.previousVariableDebt)
       .sub(vars.previousStableDebt);
-
+    //相乘
     vars.amountToMint = vars.totalDebtAccrued.percentMul(vars.reserveFactor);
 
     if (vars.amountToMint != 0) {
