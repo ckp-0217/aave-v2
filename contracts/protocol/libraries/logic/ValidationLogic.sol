@@ -401,6 +401,7 @@ library ValidationLogic {
     uint256 userStableDebt,
     uint256 userVariableDebt
   ) internal view returns (uint256, string memory) {
+    //首先判断两个币种是否在aave的配置中
     if (
       !collateralReserve.configuration.getActive() || !principalReserve.configuration.getActive()
     ) {
@@ -409,14 +410,14 @@ library ValidationLogic {
         Errors.VL_NO_ACTIVE_RESERVE
       );
     }
-
+    //判断健康因子是否满足清算范围
     if (userHealthFactor >= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD) {
       return (
         uint256(Errors.CollateralManagerErrors.HEALTH_FACTOR_ABOVE_THRESHOLD),
         Errors.LPCM_HEALTH_FACTOR_NOT_BELOW_THRESHOLD
       );
     }
-
+    //判断偿还的抵押品是否是用户的借款资金，同时判断这个抵押品是否可用清算
     bool isCollateralEnabled = collateralReserve.configuration.getLiquidationThreshold() > 0 &&
       userConfig.isUsingAsCollateral(collateralReserve.id);
 
@@ -427,7 +428,7 @@ library ValidationLogic {
         Errors.LPCM_COLLATERAL_CANNOT_BE_LIQUIDATED
       );
     }
-
+    //如果用户没有借款就直接退出
     if (userStableDebt == 0 && userVariableDebt == 0) {
       return (
         uint256(Errors.CollateralManagerErrors.CURRRENCY_NOT_BORROWED),

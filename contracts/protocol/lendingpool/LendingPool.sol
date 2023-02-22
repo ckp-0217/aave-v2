@@ -420,8 +420,8 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
    * @param debtAsset与清算一起偿还的基础借款资产的地址
    * @param user被清算借款人地址
    * @param debtToCover清算人希望覆盖的借来“资产”的债务金额
-   * @param receiveAToken如果清算人希望接收抵押品atoken，则为“true”，如果清算人希望接收抵押品atoken，则为“false”
-   *直接收取标的抵押资产
+   * @param receiveAToken如果清算人希望接收抵押品atoken，则为“true”，如果清算人不希望接收抵押品atoken，则为“false”
+   *直接收取底层资产
    **/
   function liquidationCall(
     address collateralAsset,
