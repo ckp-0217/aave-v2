@@ -137,15 +137,15 @@ library GenericLogic {
   }
 
   /**
-   * @dev Calculates the user data across the reserves.
-   * this includes the total liquidity/collateral/borrow balances in ETH,
-   * the average Loan To Value, the average Liquidation Ratio, and the Health factor.
-   * @param user The address of the user
-   * @param reservesData Data of all the reserves
-   * @param userConfig The configuration of the user
-   * @param reserves The list of the available reserves
-   * @param oracle The price oracle address
-   * @return The total collateral and total debt of the user in ETH, the avg ltv, liquidation threshold and the HF
+   * @dev计算用户数据。
+   *这包括ETH的总流动性/抵押品/借款余额，
+   *平均贷款价值比、平均清盘比率和健康因素。
+   * @param user用户地址
+   * @param reservesData所有预留的数据
+   * @param userConfig用户配置
+   * @param reserves可用的预留列表
+   * @param oracle价格oracle地址
+   * @return用户在ETH中的抵押品总额和债务总额，平均ltv，清算阈值和健康因子
    **/
   function calculateUserAccountData(
     address user,
@@ -160,7 +160,7 @@ library GenericLogic {
     if (userConfig.isEmpty()) {
       return (0, 0, 0, 0, uint256(-1));
     }
-    //寻找用户资产负债 就是将所有的支持的token遍历一遍
+    //计算用户资产与负债 就是将所有的支持的token遍历一遍
     for (vars.i = 0; vars.i < reservesCount; vars.i++) {
       //判断用户是否抵押或者借款
       if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
@@ -169,49 +169,55 @@ library GenericLogic {
 
       vars.currentReserveAddress = reserves[vars.i];
       DataTypes.ReserveData storage currentReserve = reservesData[vars.currentReserveAddress];
-      //获取当前token的信息 清算阈值 价格(对于ETH) 精度 等等
+      //获取当前token的信息 质押比率 清算阈值 价格(对于ETH) 精度 等等
       (vars.ltv, vars.liquidationThreshold, , vars.decimals, ) = currentReserve
         .configuration
         .getParams();
 
       vars.tokenUnit = 10 ** vars.decimals;
+      //获取价格
       vars.reserveUnitPrice = IPriceOracleGetter(oracle).getAssetPrice(vars.currentReserveAddress);
       //判断用户是否将他抵押
       if (vars.liquidationThreshold != 0 && userConfig.isUsingAsCollateral(vars.i)) {
+        //计算用户持有的该资产数量
         vars.compoundedLiquidityBalance = IERC20(currentReserve.aTokenAddress).balanceOf(user);
-
+        //计算该资产的价值对于eth
         uint256 liquidityBalanceETH = vars
           .reserveUnitPrice
           .mul(vars.compoundedLiquidityBalance)
           .div(vars.tokenUnit);
-
+        //计算 总的供应资产 方便后面计算平均质押率
         vars.totalCollateralInETH = vars.totalCollateralInETH.add(liquidityBalanceETH);
-
+        //质押率 供应资产*质押率=实际可以用于借贷的资产
         vars.avgLtv = vars.avgLtv.add(liquidityBalanceETH.mul(vars.ltv));
+        //清算阈值 累计每个资产的 供应资产*清算阈值
         vars.avgLiquidationThreshold = vars.avgLiquidationThreshold.add(
           liquidityBalanceETH.mul(vars.liquidationThreshold)
         );
       }
-
+      //判断是否存在借款
       if (userConfig.isBorrowing(vars.i)) {
+        //获取稳定借贷金额
         vars.compoundedBorrowBalance = IERC20(currentReserve.stableDebtTokenAddress).balanceOf(
           user
         );
+        //获取浮动借贷金额
         vars.compoundedBorrowBalance = vars.compoundedBorrowBalance.add(
           IERC20(currentReserve.variableDebtTokenAddress).balanceOf(user)
         );
-
+        //计算总的借贷金额 对于ETH
         vars.totalDebtInETH = vars.totalDebtInETH.add(
           vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(vars.tokenUnit)
         );
       }
     }
-
+    //计算出平均质押率
     vars.avgLtv = vars.totalCollateralInETH > 0 ? vars.avgLtv.div(vars.totalCollateralInETH) : 0;
+    //计算出平局清算阈值
     vars.avgLiquidationThreshold = vars.totalCollateralInETH > 0
       ? vars.avgLiquidationThreshold.div(vars.totalCollateralInETH)
       : 0;
-
+    //计算健康因子     //健康因子 = 总质押/总负债*平均清算阈值
     vars.healthFactor = calculateHealthFactorFromBalances(
       vars.totalCollateralInETH,
       vars.totalDebtInETH,
@@ -227,11 +233,11 @@ library GenericLogic {
   }
 
   /**
-   * @dev Calculates the health factor from the corresponding balances
-   * @param totalCollateralInETH The total collateral in ETH
-   * @param totalDebtInETH The total debt in ETH
-   * @param liquidationThreshold The avg liquidation threshold
-   * @return The health factor calculated from the balances provided
+   * @dev根据相应的余额计算健康系数
+   * @param totalCollateralInETH ETH的总抵押品
+   * @param totalDebtInETH ETH的总负债
+   * @param liquidationThreshold 平均清算阈值
+   * @return根据提供的余额计算的运行状况因子
    **/
   function calculateHealthFactorFromBalances(
     uint256 totalCollateralInETH,
@@ -239,7 +245,7 @@ library GenericLogic {
     uint256 liquidationThreshold
   ) internal pure returns (uint256) {
     if (totalDebtInETH == 0) return uint256(-1);
-
+    //健康因子 = 总质押/总负债*平均清算阈值
     return (totalCollateralInETH.percentMul(liquidationThreshold)).wadDiv(totalDebtInETH);
   }
 

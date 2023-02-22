@@ -20,11 +20,10 @@ import {DataTypes} from '../libraries/types/DataTypes.sol';
 import {LendingPoolStorage} from './LendingPoolStorage.sol';
 
 /**
- * @title LendingPoolCollateralManager contract
- * @author Aave
- * @dev Implements actions involving management of collateral in the protocol, the main one being the liquidations
- * IMPORTANT This contract will run always via DELEGATECALL, through the LendingPool, so the chain of inheritance
- * is the same as the LendingPool, to have compatible storage layouts
+ * @title LendingPoolCollateralManager合同
+ * @作者Aave
+ * @dev执行协议中涉及抵押品管理的操作，主要是清算这个合约总是通过DELEGATECALL运行，通过LendingPool，所以是继承链
+ *与LendingPool相同，具有兼容的存储布局
  **/
 contract LendingPoolCollateralManager is
   ILendingPoolCollateralManager,
@@ -84,13 +83,14 @@ contract LendingPoolCollateralManager is
     uint256 debtToCover,
     bool receiveAToken
   ) external override returns (uint256, string memory) {
-    //获取 指数利率 用户配置
+    //获取 两个币种的利率和指数
     DataTypes.ReserveData storage collateralReserve = _reserves[collateralAsset];
     DataTypes.ReserveData storage debtReserve = _reserves[debtAsset];
+    //获取被清算人的资产借供情况
     DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
 
     LiquidationCallLocalVars memory vars;
-    //先计算用户的健康因子
+    //先计算用户的健康因子 因为要清算用户的资产 用户用户必须是低健康因子
     (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
       user,
       _reserves,
@@ -99,9 +99,9 @@ contract LendingPoolCollateralManager is
       _reservesCount,
       _addressesProvider.getPriceOracle()
     );
-
+    //清算人 帮欠款人还债 根据支付的token获取欠款人的债务
     (vars.userStableDebt, vars.userVariableDebt) = Helpers.getUserCurrentDebt(user, debtReserve);
-
+    //验证清算还款
     (vars.errorCode, vars.errorMsg) = ValidationLogic.validateLiquidationCall(
       collateralReserve,
       debtReserve,
