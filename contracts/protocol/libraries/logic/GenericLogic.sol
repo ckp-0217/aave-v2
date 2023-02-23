@@ -188,9 +188,9 @@ library GenericLogic {
           .div(vars.tokenUnit);
         //计算 总的供应资产 方便后面计算平均质押率
         vars.totalCollateralInETH = vars.totalCollateralInETH.add(liquidityBalanceETH);
-        //质押率 供应资产*质押率=实际可以用于借贷的资产
+        //质押率 供应资产*质押率=实际可以用于借贷的资产 也就是可以借出的资产
         vars.avgLtv = vars.avgLtv.add(liquidityBalanceETH.mul(vars.ltv));
-        //清算阈值 累计每个资产的 供应资产*清算阈值
+        //清算阈值 累计每个资产的 供应资产*清算阈值 计算供应的清算阈值
         vars.avgLiquidationThreshold = vars.avgLiquidationThreshold.add(
           liquidityBalanceETH.mul(vars.liquidationThreshold)
         );
@@ -213,7 +213,7 @@ library GenericLogic {
     }
     //计算出平均质押率
     vars.avgLtv = vars.totalCollateralInETH > 0 ? vars.avgLtv.div(vars.totalCollateralInETH) : 0;
-    //计算出平局清算阈值
+    //计算出平均清算阈值
     vars.avgLiquidationThreshold = vars.totalCollateralInETH > 0
       ? vars.avgLiquidationThreshold.div(vars.totalCollateralInETH)
       : 0;

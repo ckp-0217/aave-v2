@@ -142,14 +142,14 @@ contract LendingPoolCollateralManager is
     // If debtAmountNeeded < actualDebtToLiquidate, there isn't enough
     // collateral to cover the actual amount that is being liquidated, hence we liquidate
     // a smaller amount
-    //更新实际支出的数量 可能被清算人资产无法满足清算所需要的抵押品
+    //更新实际支出的数量 可能被清算人的抵押品无法满足清算所需
     if (vars.debtAmountNeeded < vars.actualDebtToLiquidate) {
       vars.actualDebtToLiquidate = vars.debtAmountNeeded;
     }
 
     // If the liquidator reclaims the underlying asset, we make sure there is enough available liquidity in the
     // collateral reserve
-    //如果用户直接收取 USDC 而不是aUSDC,需要计算流动性是否充足
+    //如果清算人直接收取 USDC 而不是aUSDC,需要计算流动性是否充足
     if (!receiveAToken) {
       //检查收取的USDC的余额是否足够清算
       uint256 currentAvailableCollateral = IERC20(collateralAsset).balanceOf(
@@ -194,10 +194,10 @@ contract LendingPoolCollateralManager is
     );
     //如果要aUSDC就转账
     if (receiveAToken) {
-      //如果结算人之前没有aUSDC
+      //
       vars.liquidatorPreviousATokenBalance = IERC20(vars.collateralAtoken).balanceOf(msg.sender);
       vars.collateralAtoken.transferOnLiquidation(user, msg.sender, vars.maxCollateralToLiquidate);
-      //就记录作为抵押
+      //如果结算人之前没有aUSDC 就记录作为供应
       if (vars.liquidatorPreviousATokenBalance == 0) {
         DataTypes.UserConfigurationMap storage liquidatorConfig = _usersConfig[msg.sender];
         liquidatorConfig.setUsingAsCollateral(collateralReserve.id, true);
@@ -229,13 +229,13 @@ contract LendingPoolCollateralManager is
       emit ReserveUsedAsCollateralDisabled(collateralAsset, user);
     }
     //这部分资金将会转给atoken
-    // Transfers the debt asset being repaid to the aToken, where the liquidity is kept
+    //这里就可以得出为什么 aave不是使用uniswap那种样式 而是使用利率，因为有可能aToken的底层资产会增加，但是这并不是来至于借贷利息
     IERC20(debtAsset).safeTransferFrom(
       msg.sender,
       debtReserve.aTokenAddress,
       vars.actualDebtToLiquidate
     );
-
+    //触发清算事件
     emit LiquidationCall(
       collateralAsset,
       debtAsset,
