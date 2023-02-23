@@ -126,7 +126,7 @@ contract LendingPoolCollateralManager is
     vars.actualDebtToLiquidate = debtToCover > vars.maxLiquidatableDebt
       ? vars.maxLiquidatableDebt
       : debtToCover;
-
+    //计算最终 获取的抵押品数量 和 还清债务的数量
     (
       vars.maxCollateralToLiquidate,
       vars.debtAmountNeeded
@@ -142,7 +142,7 @@ contract LendingPoolCollateralManager is
     // If debtAmountNeeded < actualDebtToLiquidate, there isn't enough
     // collateral to cover the actual amount that is being liquidated, hence we liquidate
     // a smaller amount
-    //更新实际支出的数量
+    //更新实际支出的数量 可能被清算人资产无法满足清算所需要的抵押品
     if (vars.debtAmountNeeded < vars.actualDebtToLiquidate) {
       vars.actualDebtToLiquidate = vars.debtAmountNeeded;
     }
@@ -306,17 +306,17 @@ contract LendingPoolCollateralManager is
     vars.maxAmountCollateralToLiquidate = vars
       .debtAssetPrice
       .mul(debtToCover)
-      .mul(10**vars.collateralDecimals)
+      .mul(10 ** vars.collateralDecimals)
       .percentMul(vars.liquidationBonus)
-      .div(vars.collateralPrice.mul(10**vars.debtAssetDecimals));
+      .div(vars.collateralPrice.mul(10 ** vars.debtAssetDecimals));
     //被清算人的抵押品不能满足最大额度 要按照清算人的抵押品数量来计算 最终计算出清算人付出的数量 以及获取的抵押品数量
     if (vars.maxAmountCollateralToLiquidate > userCollateralBalance) {
       collateralAmount = userCollateralBalance;
       debtAmountNeeded = vars
         .collateralPrice
         .mul(collateralAmount)
-        .mul(10**vars.debtAssetDecimals)
-        .div(vars.debtAssetPrice.mul(10**vars.collateralDecimals))
+        .mul(10 ** vars.debtAssetDecimals)
+        .div(vars.debtAssetPrice.mul(10 ** vars.collateralDecimals))
         .percentDiv(vars.liquidationBonus);
     } else {
       collateralAmount = vars.maxAmountCollateralToLiquidate;
