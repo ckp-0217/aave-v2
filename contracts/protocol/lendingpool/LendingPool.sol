@@ -27,22 +27,22 @@ import {DataTypes} from '../libraries/types/DataTypes.sol';
 import {LendingPoolStorage} from './LendingPoolStorage.sol';
 
 /**
- * @title LendingPool contract
- * @dev Main point of interaction with an Aave protocol's market
- * - Users can:
- *   # Deposit
- *   # Withdraw
- *   # Borrow
- *   # Repay
- *   # Swap their loans between variable and stable rate
- *   # Enable/disable their deposits as collateral rebalance stable rate borrow positions
- *   # Liquidate positions
- *   # Execute Flash Loans
- * - To be covered by a proxy contract, owned by the LendingPoolAddressesProvider of the specific market
- * - All admin functions are callable by the LendingPoolConfigurator contract defined also in the
- *   LendingPoolAddressesProvider
- * @author Aave
- **/
+* @title贷款池合同
+* @dev与Aave协议市场的主要互动点
+* -用户可以:
+* #押金
+* #退出
+* #借用
+* #偿还
+* #在可变利率和稳定利率之间交换贷款
+* #启用/禁用他们的存款作为抵押品，重新平衡稳定的利率借贷头寸
+* #平仓
+* #执行快速贷款
+* -由特定市场的LendingPoolAddressesProvider拥有的代理合同覆盖
+中定义的LendingPoolConfigurator契约可以调用所有的管理函数
+* LendingPoolAddressesProvider
+* @作者Aave
+**/
 contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage {
   using SafeMath for uint256;
   using WadRayMath for uint256;
@@ -77,12 +77,12 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
   }
 
   /**
-   * @dev Function is invoked by the proxy contract when the LendingPool contract is added to the
-   * LendingPoolAddressesProvider of the market.
-   * - Caching the address of the LendingPoolAddressesProvider in order to reduce gas consumption
-   *   on subsequent operations
-   * @param provider The address of the LendingPoolAddressesProvider
-   **/
+  * @dev函数在LendingPool契约被添加到
+  * lendingpooladdressesmarket的provider。
+  * -缓存LendingPoolAddressesProvider的地址，以减少气体消耗
+  *后续操作
+  LendingPoolAddressesProvider的地址   
+**/
   function initialize(ILendingPoolAddressesProvider provider) public initializer {
     _addressesProvider = provider;
     _maxStableRateBorrowSizePercent = 2500;
@@ -91,15 +91,15 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
   }
 
   /**
-   * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
-   * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
-   * @param asset The address of the underlying asset to deposit
-   * @param amount The amount to be deposited
-   * @param onBehalfOf The address that will receive the aTokens, same as msg.sender if the user
-   *   wants to receive them on his own wallet, or a different address if the beneficiary of aTokens
-   *   is a different wallet
-   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-   *   0 if the action is executed directly by the user, without any middle-man
+   * @dev将“一定数量”的基础资产存入储备，作为回报接收覆盖的代币。
+   * -例如，用户存入100 USDC，并获得100 aUSDC
+   * @param asset要存入的基础资产的地址
+   * @param amount要存入的金额
+   * @param onBehalfOf接收aTokens的地址，和msg一样。发件人如果用户
+   *希望在自己的钱包上收到它们，或者如果是aTokens的受益人，则使用不同的地址
+   *是一个不同的钱包
+   * @param referralCode用于注册发起操作的积分器的代码，以获得潜在的奖励。
+   * 0(如果操作由用户直接执行，没有任何中间人)
    **/
   function deposit(
     address asset,
@@ -129,15 +129,15 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
   }
 
   /**
-   * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned
-   * E.g. User has 100 aUSDC, calls withdraw() and receives 100 USDC, burning the 100 aUSDC
-   * @param asset The address of the underlying asset to withdraw
-   * @param amount The underlying amount to be withdrawn
-   *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
-   * @param to Address that will receive the underlying, same as msg.sender if the user
-   *   wants to receive it on his own wallet, or a different address if the beneficiary is a
-   *   different wallet
-   * @return The final amount withdrawn
+   * @dev从储备中提取“数量”的基础资产，烧毁等效的aTokens所拥有的
+   *例如，用户有100个aUSDC，调用withdraw()并收到100个USDC，烧掉这100个aUSDC
+   * @param asset要提取的基础资产的地址
+   * @param amount要提取的基础金额
+   * -发送值类型(uint256)。为了提取整个aToken余额
+   * @param地址将接收底层，与msg相同。发件人如果用户
+   *希望在自己的钱包上收到，如果受益人是
+   *不同的钱包
+   * @return最终提取的金额
    **/
   function withdraw(
     address asset,
@@ -185,19 +185,19 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
   }
 
   /**
-   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
-   * already deposited enough collateral, or he was given enough allowance by a credit delegator on the
-   * corresponding debt token (StableDebtToken or VariableDebtToken)
-   * - E.g. User borrows 100 USDC passing as `onBehalfOf` his own address, receiving the 100 USDC in his wallet
-   *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
-   * @param asset The address of the underlying asset to borrow
-   * @param amount The amount to be borrowed
-   * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable
-   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-   *   0 if the action is executed directly by the user, without any middle-man
-   * @param onBehalfOf Address of the user who will receive the debt. Should be the address of the borrower itself
-   * calling the function if he wants to borrow against his own collateral, or the address of the credit delegator
-   * if he has been given credit delegation allowance
+   * @dev允许用户借入特定“金额”的储备基础资产，前提是借款人
+   *已存入足够的抵押品，或他已从信贷授权人处获得足够的津贴
+   *对应的债务token (StableDebtToken或VariableDebtToken)
+   * -例如，用户借了100美元，以“代表”他自己的地址，在他的钱包里收到了100美元
+   *和100个稳定/可变债务代币，取决于' interestRateMode '
+   * @param asset要借用的资产的地址
+   * @param amount要借的金额
+   * @param interestRateMode用户想要借款的利率模式:1为稳定，2为可变
+   * @param referralCode用于注册发起操作的积分器的代码，以获得潜在的奖励。
+   * 0(如果操作由用户直接执行，没有任何中间人)
+   * @param onBehalfOf将接收债务的用户地址。应该是借款方自己的地址吗
+   *如果他想用自己的抵押品借款，或者信用委托人的地址，则调用该函数
+   *如果他已获得信贷委托津贴
    **/
   function borrow(
     address asset,
@@ -223,16 +223,16 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
   }
 
   /**
-   * @notice Repays a borrowed `amount` on a specific reserve, burning the equivalent debt tokens owned
-   * - E.g. User repays 100 USDC, burning 100 variable/stable debt tokens of the `onBehalfOf` address
-   * @param asset The address of the borrowed underlying asset previously borrowed
-   * @param amount The amount to repay
-   * - Send the value type(uint256).max in order to repay the whole debt for `asset` on the specific `debtMode`
-   * @param rateMode The interest rate mode at of the debt the user wants to repay: 1 for Stable, 2 for Variable
-   * @param onBehalfOf Address of the user who will get his debt reduced/removed. Should be the address of the
-   * user calling the function if he wants to reduce/remove his own debt, or the address of any other
-   * other borrower whose debt should be removed
-   * @return The final amount repaid
+   * @notice在特定准备金上偿还借来的“金额”，烧掉拥有的等效债务代币
+   * -例如，用户偿还100 USDC，烧毁100个“onBehalfOf”地址的可变/稳定债务代币
+   * @param asset之前被借用的基础资产的地址
+   * @param amount要偿还的金额
+   * -发送值类型(uint256)。为了在特定的“debtMode”上偿还“资产”的全部债务
+   * @param rateMode用户想要偿还的债务的利率模式:1为稳定，2为可变
+   * @param onBehalfOf用户的地址，他将得到他的债务减少/消除。应该是地址吗
+   *用户调用该函数，如果他想减少/消除自己的债务，或任何其他地址
+   *其他应免除债务的借款人
+   * @return最后偿还的金额
    **/
   function repay(
     address asset,
@@ -292,9 +292,9 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
   }
 
   /**
-   * @dev Allows a borrower to swap his debt between stable and variable mode, or viceversa
-   * @param asset The address of the underlying asset borrowed
-   * @param rateMode The rate mode that the user wants to swap to
+   * @dev允许借款者在稳定模式和可变模式之间交换债务，反之亦然
+   * @param asset被借用资产的地址
+   * @param rateMode用户希望切换到的速率模式
    **/
   function swapBorrowRateMode(address asset, uint256 rateMode) external override whenNotPaused {
     DataTypes.ReserveData storage reserve = _reserves[asset];
